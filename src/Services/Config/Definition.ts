@@ -17,4 +17,28 @@ export default {
         type: 'string',
         required: true,
     },
+    DB_HOST: {
+        type: 'string',
+        required: true,
+    },
+    DB_PORT: {
+        type: 'number',
+        required: true,
+    },
+    DB_NAME: {
+        type: 'string',
+        required: true,
+    },
+    DB_USER: {
+        type: 'string',
+        required: true,
+    },
+    DB_PASSWORD: {
+        type: 'string',
+        required: true,
+    },
+    DB_SSL: {
+        type: 'boolean',
+        required: true,
+    },
 } as Record<string, TConfigDefinition>;

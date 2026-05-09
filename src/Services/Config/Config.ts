@@ -1,5 +1,6 @@
 import {
     TConfigDefinition,
+    TDatabaseConfig,
     THttpServerConfig,
     TLoggerConfig,
 } from 'src/Services/Config/Types';
@@ -87,6 +88,19 @@ export default class Config {
         return {
             port: 80,
             corsOptions: Config.getCorsOptions(),
+        };
+    }
+
+    public static getDatabaseConfig(): TDatabaseConfig {
+        return {
+            host: Config.get<string>('DB_HOST'),
+            port: Config.get<number>('DB_PORT'),
+            database: Config.get<string>('DB_NAME'),
+            schema: 'public',
+            user: Config.get<string>('DB_USER'),
+            password: Config.get<string>('DB_PASSWORD'),
+            ssl: Config.get<boolean>('DB_SSL'),
+            migrationsDir: '/app/migrations',
         };
     }
 

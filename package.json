@@ -24,6 +24,7 @@
         "@types/cors": "^2.8.19",
         "@types/express": "^5.0.6",
         "@types/node": "^25.6.2",
+        "@types/pg": "^8.20.0",
         "prettier": "^3.8.3",
         "ts-node": "^10.9.2",
         "tsc-alias": "^1.8.17",
@@ -33,6 +34,7 @@
     "dependencies": {
         "cors": "^2.8.6",
         "express": "^5.2.1",
+        "pg": "^8.20.0",
         "winston": "^3.19.0",
         "winston-daily-rotate-file": "^5.0.0"
     }
