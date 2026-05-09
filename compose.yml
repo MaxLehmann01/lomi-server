@@ -1,0 +1,11 @@
+name: lomi-server-dev
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    restart: unless-stopped
+    volumes:
+      - ./src:/app/src
