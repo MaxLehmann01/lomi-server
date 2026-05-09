@@ -25,3 +25,15 @@ export type TDatabaseConfig = {
     ssl: boolean;
     migrationsDir: string;
 };
+
+export type TAuthConfig = {
+    accessToken: {
+        secret: string;
+        expiresIn: number;
+    };
+    refreshToken: {
+        secret: string;
+        expiresIn: number;
+    };
+    aes256GcmKey: Buffer;
+};

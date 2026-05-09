@@ -1,10 +1,14 @@
 import {
+    TAuthConfig,
     TConfigDefinition,
     TDatabaseConfig,
     THttpServerConfig,
     TLoggerConfig,
 } from 'src/Services/Config/Types';
 import { CorsOptions } from 'cors';
+import Security from 'src/Services/Security/Security';
+import path from 'path';
+import fs from 'node:fs';
 
 export default class Config {
     private static values: Record<
@@ -104,6 +108,30 @@ export default class Config {
         };
     }
 
+    public static getAuthConfig(): TAuthConfig {
+        const secretsJsonFilePath = path.resolve('app-data/secrets.json');
+
+        if (!fs.existsSync(secretsJsonFilePath)) {
+            Config.generateSecretsJSON();
+        }
+
+        const jsonContent = fs.readFileSync(secretsJsonFilePath, 'utf8');
+
+        const secrets = JSON.parse(jsonContent);
+
+        return {
+            accessToken: {
+                secret: secrets.accessTokenSecret,
+                expiresIn: 3600,
+            },
+            refreshToken: {
+                secret: secrets.refreshTokenSecret,
+                expiresIn: 7 * 24 * 3600,
+            },
+            aes256GcmKey: Config.getAes256GcmKey(secrets.aes256GcmKey),
+        };
+    }
+
     private static getCorsOptions(): CorsOptions {
         const whitelist = Config.get<string>('CORS_WHITELIST').split(',');
 
@@ -117,5 +145,35 @@ export default class Config {
                 }
             },
         };
+    }
+
+    private static getAes256GcmKey(base64Key: string): Buffer {
+        const bufferKey = Buffer.from(base64Key, 'base64');
+
+        if (bufferKey.length !== 32) {
+            throw new Error(
+                `AES256_GCM_KEY must decode to 32 bytes; got ${bufferKey.length}`
+            );
+        }
+
+        return bufferKey;
+    }
+
+    private static generateSecretsJSON(): void {
+        const jsonContent = JSON.stringify(
+            {
+                accessTokenSecret: Security.generateJWTSecret(),
+                refreshTokenSecret: Security.generateJWTSecret(),
+                aes256GcmKey: Security.generateAesGCMKey(),
+            },
+            null,
+            4
+        );
+
+        fs.writeFileSync(
+            path.resolve('app-data/secrets.json'),
+            jsonContent,
+            'utf8'
+        );
     }
 }

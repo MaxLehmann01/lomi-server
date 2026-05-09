@@ -1,4 +1,4 @@
-import * as fs from 'node:fs';
+import fs from 'node:fs';
 import path from 'path';
 import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
 import { TDatabaseConfig } from 'src/Services/Config/Types';

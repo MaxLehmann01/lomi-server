@@ -11,6 +11,7 @@ services:
       - ./src:/app/src
       - ./logs:/app/logs
       - ./migrations:/app/migrations
+      - app-data:/app/app-data
     depends_on:
       db:
         condition: service_healthy
@@ -32,4 +33,5 @@ services:
       start_period: 10s
 
 volumes:
+  app-data:
   db-data:

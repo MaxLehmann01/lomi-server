@@ -41,3 +41,5 @@ httpServer
         logger.error('Failed to start HTTP server', { error: e.message });
         process.exit(1);
     });
+
+logger.debug('AuthConfig', Config.getAuthConfig());
