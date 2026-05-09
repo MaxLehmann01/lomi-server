@@ -1,21 +1,24 @@
 {
-  "name": "lomi-server",
-  "version": "0.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/MaxLehmann01/lomi-server.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/MaxLehmann01/lomi-server/issues"
-  },
-  "homepage": "https://github.com/MaxLehmann01/lomi-server#readme"
+    "name": "lomi-server",
+    "version": "0.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/MaxLehmann01/lomi-server.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs",
+    "bugs": {
+        "url": "https://github.com/MaxLehmann01/lomi-server/issues"
+    },
+    "homepage": "https://github.com/MaxLehmann01/lomi-server#readme",
+    "devDependencies": {
+        "prettier": "^3.8.3"
+    }
 }
