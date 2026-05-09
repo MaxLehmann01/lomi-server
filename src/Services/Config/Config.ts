@@ -1,4 +1,9 @@
-import { TConfigDefinition, TLoggerConfig } from 'src/Services/Config/Types';
+import {
+    TConfigDefinition,
+    THttpServerConfig,
+    TLoggerConfig,
+} from 'src/Services/Config/Types';
+import { CorsOptions } from 'cors';
 
 export default class Config {
     private static values: Record<
@@ -76,6 +81,27 @@ export default class Config {
         return {
             level: 'silly',
             directory: '/app/logs',
+        };
+    }
+    public static getHttpServerConfig(): THttpServerConfig {
+        return {
+            port: 80,
+            corsOptions: Config.getCorsOptions(),
+        };
+    }
+
+    private static getCorsOptions(): CorsOptions {
+        const whitelist = Config.get<string>('CORS_WHITELIST').split(',');
+
+        return {
+            credentials: true,
+            origin: (origin, callback) => {
+                if (!origin || whitelist.indexOf(origin) !== -1) {
+                    callback(null, true);
+                } else {
+                    callback(new Error('Not allowed by CORS'), false);
+                }
+            },
         };
     }
 }

@@ -9,4 +9,8 @@ export default {
         type: 'string',
         required: true,
     },
+    CORS_WHITELIST: {
+        type: 'string',
+        required: true,
+    },
 } as Record<string, TConfigDefinition>;

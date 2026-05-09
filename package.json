@@ -21,6 +21,8 @@
     },
     "homepage": "https://github.com/MaxLehmann01/lomi-server#readme",
     "devDependencies": {
+        "@types/cors": "^2.8.19",
+        "@types/express": "^5.0.6",
         "@types/node": "^25.6.2",
         "prettier": "^3.8.3",
         "ts-node": "^10.9.2",
@@ -29,6 +31,8 @@
         "typescript": "^6.0.3"
     },
     "dependencies": {
+        "cors": "^2.8.6",
+        "express": "^5.2.1",
         "winston": "^3.19.0",
         "winston-daily-rotate-file": "^5.0.0"
     }

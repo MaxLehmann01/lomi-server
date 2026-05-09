@@ -2,3 +2,6 @@ services:
   app:
     environment:
       TZ: "YOUR_TIMEZONE_HERE"
+      CORS_WHITELIST: "YOUR_COMMA_SEPARATED_LIST_OF_ALLOWED_ORIGINS_HERE"
+    ports:
+      - "YOUR_EXTERNAL_PORT:80"
