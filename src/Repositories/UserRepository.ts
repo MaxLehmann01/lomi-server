@@ -1,0 +1,193 @@
+import AbstractRepository from 'src/Repositories/AbstractRepository';
+import User, { TDBUser, TUser } from 'src/Entities/User/User';
+import UserRefreshToken, {
+    TDBUserRefreshToken,
+    TUserRefreshToken,
+} from 'src/Entities/User/UserRefreshToken';
+import Security from 'src/Services/Security/Security';
+
+export default class UserRepository extends AbstractRepository {
+    public async findById(userId: TUser['id']): Promise<User | null> {
+        const user = await this.db.selectOne<TDBUser>(
+            'users',
+            '*',
+            'id = $1',
+            undefined,
+            [userId]
+        );
+
+        if (!user) {
+            return null;
+        }
+
+        return new User({
+            id: user.id,
+            createdAt: user.created_at,
+            updatedAt: user.updated_at,
+            name: user.name,
+            passwordHash: user.password_hash,
+            passwordSalt: user.password_salt,
+        });
+    }
+
+    public async findByName(name: TUser['name']): Promise<User | null> {
+        const user = await this.db.selectOne<TDBUser>(
+            'users',
+            '*',
+            'name = $1',
+            undefined,
+            [name]
+        );
+
+        if (!user) {
+            return null;
+        }
+
+        return new User({
+            id: user.id,
+            createdAt: user.created_at,
+            updatedAt: user.updated_at,
+            name: user.name,
+            passwordHash: user.password_hash,
+            passwordSalt: user.password_salt,
+        });
+    }
+
+    public async insert(
+        user: Omit<
+            TUser,
+            'id' | 'createdAt' | 'updatedAt' | 'passwordSalt' | 'passwordHash'
+        >,
+        password: string
+    ): Promise<User | null> {
+        const salt = Security.generateSalt();
+        const passwordHash = Security.hashString(password, salt);
+
+        const insertedId = await this.db.insert<TUser['id']>(
+            'users',
+            {
+                name: user.name,
+                password_salt: salt,
+                password_hash: passwordHash,
+            },
+            'id'
+        );
+
+        if (!insertedId) {
+            return null;
+        }
+
+        return this.findById(insertedId);
+    }
+
+    public async findRefreshTokenById(
+        refreshTokenId: TUserRefreshToken['id']
+    ): Promise<UserRefreshToken | null> {
+        const refreshToken = await this.db.selectOne<TDBUserRefreshToken>(
+            'user_refresh_tokens',
+            '*',
+            'id = $1',
+            undefined,
+            [refreshTokenId]
+        );
+
+        if (!refreshToken) {
+            return null;
+        }
+
+        return new UserRefreshToken({
+            id: refreshToken.id,
+            createdAt: refreshToken.created_at,
+            updatedAt: refreshToken.updated_at,
+            userId: refreshToken.user_id,
+            token: Security.decryptAesGCM({
+                ct: refreshToken.token_ct,
+                iv: refreshToken.token_iv,
+                tag: refreshToken.token_tag,
+            }),
+            tokenDigest: refreshToken.token_digest,
+            tokenExpiresAt: refreshToken.token_expires_at,
+        });
+    }
+
+    public async findRefreshTokenByUserIdAndToken(
+        userId: TUserRefreshToken['userId'],
+        token: TUserRefreshToken['token']
+    ): Promise<UserRefreshToken | null> {
+        const tokenDigest = Security.createDigest(token);
+
+        const refreshToken = await this.db.selectOne<TDBUserRefreshToken>(
+            'user_refresh_tokens',
+            '*',
+            'user_id = $1 AND token_digest = $2',
+            undefined,
+            [userId, tokenDigest]
+        );
+
+        if (!refreshToken) {
+            return null;
+        }
+
+        return new UserRefreshToken({
+            id: refreshToken.id,
+            createdAt: refreshToken.created_at,
+            updatedAt: refreshToken.updated_at,
+            userId: refreshToken.user_id,
+            token: Security.decryptAesGCM({
+                ct: refreshToken.token_ct,
+                iv: refreshToken.token_iv,
+                tag: refreshToken.token_tag,
+            }),
+            tokenDigest: refreshToken.token_digest,
+            tokenExpiresAt: refreshToken.token_expires_at,
+        });
+    }
+
+    public async insertRefreshToken(
+        refreshToken: Omit<
+            TUserRefreshToken,
+            'id' | 'createdAt' | 'updatedAt' | 'tokenDigest'
+        >
+    ): Promise<UserRefreshToken | null> {
+        const encryptedToken = Security.encryptAesGCM(refreshToken.token);
+        const tokenDigest = Security.createDigest(refreshToken.token);
+
+        const insertedId = await this.db.insert<TUserRefreshToken['id']>(
+            'user_refresh_tokens',
+            {
+                user_id: refreshToken.userId,
+                token_ct: encryptedToken.ct,
+                token_iv: encryptedToken.iv,
+                token_tag: encryptedToken.tag,
+                token_digest: tokenDigest,
+                token_expires_at: refreshToken.tokenExpiresAt,
+            },
+            'id'
+        );
+
+        if (!insertedId) {
+            return null;
+        }
+
+        return this.findRefreshTokenById(insertedId);
+    }
+
+    public async deleteRefreshTokenByUserIdAndToken(
+        userId: TUserRefreshToken['userId'],
+        token: TUserRefreshToken['token']
+    ): Promise<boolean> {
+        const tokenDigest = Security.createDigest(token);
+
+        const isDeleted = await this.db.delete(
+            'user_refresh_tokens',
+            'user_id = $1 AND token_digest = $2',
+            [userId, tokenDigest]
+        );
+
+        if (isDeleted === null) {
+            return false;
+        }
+
+        return isDeleted > 0;
+    }
+}

@@ -4,6 +4,8 @@ import Logger from 'src/Services/Logger/Logger';
 import HttpServer from 'src/Services/HttpServer/HttpServer';
 import IndexHttpController from 'src/HttpControllers/IndexController';
 import Database from 'src/Services/Database/Database';
+import AuthHttpController from 'src/HttpControllers/AuthController';
+import UserRepository from 'src/Repositories/UserRepository';
 
 Config.load(Definition);
 
@@ -14,6 +16,8 @@ const database = Database.getInstance(logger);
 
 HttpServer.setConfig(Config.getHttpServerConfig());
 const httpServer = HttpServer.getInstance(logger);
+
+const userRepository = new UserRepository(database);
 
 database
     .start()
@@ -32,6 +36,7 @@ database
     });
 
 httpServer.registerController(new IndexHttpController(logger));
+httpServer.registerController(new AuthHttpController(logger, userRepository));
 httpServer
     .start()
     .then(() => {
@@ -41,5 +46,3 @@ httpServer
         logger.error('Failed to start HTTP server', { error: e.message });
         process.exit(1);
     });
-
-logger.debug('AuthConfig', Config.getAuthConfig());
