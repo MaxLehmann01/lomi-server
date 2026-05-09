@@ -2,3 +2,4 @@ node_modules
 .idea/*
 !.idea/prettier.xml
 compose.override.yml
+logs

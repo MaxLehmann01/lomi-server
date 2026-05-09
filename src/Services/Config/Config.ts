@@ -1,4 +1,4 @@
-import { TConfigDefinition } from 'src/Services/Config/Types';
+import { TConfigDefinition, TLoggerConfig } from 'src/Services/Config/Types';
 
 export default class Config {
     private static values: Record<
@@ -70,5 +70,12 @@ export default class Config {
         }
 
         return value as T;
+    }
+
+    public static getLoggerConfig(): TLoggerConfig {
+        return {
+            level: 'silly',
+            directory: '/app/logs',
+        };
     }
 }

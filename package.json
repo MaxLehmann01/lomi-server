@@ -27,5 +27,9 @@
         "tsc-alias": "^1.8.17",
         "tsconfig-paths": "^4.2.0",
         "typescript": "^6.0.3"
+    },
+    "dependencies": {
+        "winston": "^3.19.0",
+        "winston-daily-rotate-file": "^5.0.0"
     }
 }
