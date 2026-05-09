@@ -6,7 +6,8 @@
     "scripts": {
         "dev:start": "docker-compose -f compose.yml -f compose.override.yml up --build",
         "dev:stop": "docker-compose -f compose.yml -f compose.override.yml down",
-        "dev:stop-v": "docker-compose -f compose.yml -f compose.override.yml down -v"
+        "dev:stop-v": "docker-compose -f compose.yml -f compose.override.yml down -v",
+        "dev:migration": "node -e \"const d=new Date();const f=d.toISOString().slice(0,19).replace('T','_').replace(/:/g,'-');require('fs').writeFileSync('./migrations/'+f+'.sql','');\""
     },
     "repository": {
         "type": "git",
