@@ -13,4 +13,8 @@ export default {
         type: 'string',
         required: true,
     },
+    npm_package_version: {
+        type: 'string',
+        required: true,
+    },
 } as Record<string, TConfigDefinition>;
