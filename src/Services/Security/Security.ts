@@ -1,6 +1,7 @@
 import bcryptjs from 'bcryptjs';
 import crypto from 'crypto';
 import Config from 'src/Services/Config/Config';
+import { createPublicKey, KeyObject } from 'node:crypto';
 
 type TGCMBundle = {
     ct: Buffer;
@@ -67,5 +68,18 @@ export default class Security {
 
     public static generateSalt(): string {
         return bcryptjs.genSaltSync(12);
+    }
+
+    public static isValidPublicKeyPem(pem: string): boolean {
+        try {
+            const key: KeyObject = createPublicKey({
+                key: pem,
+                format: 'pem',
+            });
+
+            return key.type === 'public';
+        } catch {
+            return false;
+        }
     }
 }

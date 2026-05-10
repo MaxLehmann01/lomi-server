@@ -5,6 +5,10 @@ import UserRefreshToken, {
     TUserRefreshToken,
 } from 'src/Entities/User/UserRefreshToken';
 import Security from 'src/Services/Security/Security';
+import UserDevice, {
+    TDBUserDevice,
+    TUserDevice,
+} from 'src/Entities/User/UserDevice';
 
 export default class UserRepository extends AbstractRepository {
     public async findById(userId: TUser['id']): Promise<User | null> {
@@ -189,5 +193,76 @@ export default class UserRepository extends AbstractRepository {
         }
 
         return isDeleted > 0;
+    }
+
+    public async findDeviceById(
+        deviceId: TUserDevice['id']
+    ): Promise<UserDevice | null> {
+        const device = await this.db.selectOne<TDBUserDevice>(
+            'user_devices',
+            '*',
+            'id = $1',
+            undefined,
+            [deviceId]
+        );
+
+        if (!device) {
+            return null;
+        }
+
+        return new UserDevice({
+            id: device.id,
+            createdAt: device.created_at,
+            updatedAt: device.updated_at,
+            userId: device.user_id,
+            clientDeviceId: device.client_device_id,
+            publicKey: device.public_key,
+        });
+    }
+
+    public async findDeviceByUserIdAndClientDeviceId(
+        userId: TUserDevice['userId'],
+        clientDeviceId: TUserDevice['clientDeviceId']
+    ): Promise<UserDevice | null> {
+        const device = await this.db.selectOne<TDBUserDevice>(
+            'user_devices',
+            '*',
+            'user_id = $1 AND client_device_id = $2',
+            undefined,
+            [userId, clientDeviceId]
+        );
+
+        if (!device) {
+            return null;
+        }
+
+        return new UserDevice({
+            id: device.id,
+            createdAt: device.created_at,
+            updatedAt: device.updated_at,
+            userId: device.user_id,
+            clientDeviceId: device.client_device_id,
+            publicKey: device.public_key,
+        });
+    }
+
+    public async insertDevice(
+        device: Omit<TUserDevice, 'id' | 'createdAt' | 'updatedAt'>
+    ): Promise<UserDevice | null> {
+        const insertedId = await this.db.insert<TUserDevice['id']>(
+            'user_devices',
+            {
+                user_id: device.userId,
+                client_device_id: device.clientDeviceId,
+                public_key: device.publicKey,
+            },
+            'id'
+        );
+
+        if (!insertedId) {
+            return null;
+        }
+
+        return this.findDeviceById(insertedId);
     }
 }

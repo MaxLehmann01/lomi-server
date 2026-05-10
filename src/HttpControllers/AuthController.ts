@@ -85,7 +85,7 @@ export default class AuthHttpController extends AbstractHttpController {
         req: Request,
         res: Response
     ): Promise<void> => {
-        const { username, password } = req.body;
+        const { username, password, clientDeviceId, publicKey } = req.body;
 
         if (!username || typeof username !== 'string') {
             throw new RouteError(
@@ -98,6 +98,24 @@ export default class AuthHttpController extends AbstractHttpController {
             throw new RouteError(
                 400,
                 'The field "password" is required and must be a string'
+            );
+        }
+
+        if (!clientDeviceId || typeof clientDeviceId !== 'string') {
+            throw new RouteError(
+                400,
+                'The field "clientDeviceId" is required and must be a string'
+            );
+        }
+
+        if (
+            !publicKey ||
+            typeof publicKey !== 'string' ||
+            !Security.isValidPublicKeyPem(publicKey)
+        ) {
+            throw new RouteError(
+                400,
+                'The field "publicKey" is required and must be a valid pem formatted public key string'
             );
         }
 
@@ -126,6 +144,23 @@ export default class AuthHttpController extends AbstractHttpController {
 
         if (!refreshToken) {
             throw new RouteError(500, 'Failed to create refresh token.');
+        }
+
+        if (
+            !(await this.userRepository.findDeviceByUserIdAndClientDeviceId(
+                user.getId(),
+                clientDeviceId
+            ))
+        ) {
+            if (
+                !(await this.userRepository.insertDevice({
+                    userId: user.getId(),
+                    clientDeviceId: clientDeviceId,
+                    publicKey: publicKey,
+                }))
+            ) {
+                throw new RouteError(500, 'Failed to register user device.');
+            }
         }
 
         res.status(200).json({
