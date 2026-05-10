@@ -69,6 +69,19 @@ export default class AuthHttpController extends AbstractHttpController {
             this.refreshTokenMiddleware,
             asyncHandler(this.refreshRoute)
         );
+
+        this.router.get(
+            '/devices',
+            this.accessTokenMiddleware,
+            this.refreshTokenMiddleware,
+            asyncHandler(this.devicesRoute)
+        );
+        this.router.delete(
+            '/devices/:clientDeviceId',
+            this.accessTokenMiddleware,
+            this.refreshTokenMiddleware,
+            asyncHandler(this.removeDeviceRoute)
+        );
     }
 
     private userRoute = async (req: Request, res: Response): Promise<void> => {
@@ -232,6 +245,52 @@ export default class AuthHttpController extends AbstractHttpController {
         res.status(200).json({
             message: 'Successfully refreshed user access',
             data: authTokens,
+        });
+    };
+
+    private devicesRoute = async (
+        req: Request,
+        res: Response
+    ): Promise<void> => {
+        const devices = await this.userRepository.findDevicesByUserId(
+            req.user.getId()
+        );
+
+        res.status(200).json({
+            message: 'Successfully retrieved user devices',
+            data: devices.map((device) => ({
+                clientDeviceId: device.getClientDeviceId(),
+                publicKey: device.getPublicKey(),
+            })),
+        });
+    };
+
+    private removeDeviceRoute = async (
+        req: Request,
+        res: Response
+    ): Promise<void> => {
+        const { clientDeviceId } = req.params;
+
+        if (!clientDeviceId || typeof clientDeviceId !== 'string') {
+            throw new RouteError(
+                400,
+                'The parameter "clientDeviceId" is required and must be a string'
+            );
+        }
+
+        const isDeleted =
+            await this.userRepository.deleteDeviceByUserIdAndClientDeviceId(
+                req.user.getId(),
+                clientDeviceId
+            );
+
+        if (!isDeleted) {
+            throw new RouteError(500, 'Failed to delete user device.');
+        }
+
+        res.status(200).json({
+            message: 'Successfully removed user device',
+            data: null,
         });
     };
 

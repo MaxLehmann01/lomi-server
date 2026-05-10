@@ -246,6 +246,30 @@ export default class UserRepository extends AbstractRepository {
         });
     }
 
+    public async findDevicesByUserId(
+        userId: TUserDevice['userId']
+    ): Promise<UserDevice[]> {
+        const devices = await this.db.select<TDBUserDevice>(
+            'user_devices',
+            '*',
+            'user_id = $1',
+            undefined,
+            [userId]
+        );
+
+        return devices.map(
+            (device) =>
+                new UserDevice({
+                    id: device.id,
+                    createdAt: device.created_at,
+                    updatedAt: device.updated_at,
+                    userId: device.user_id,
+                    clientDeviceId: device.client_device_id,
+                    publicKey: device.public_key,
+                })
+        );
+    }
+
     public async insertDevice(
         device: Omit<TUserDevice, 'id' | 'createdAt' | 'updatedAt'>
     ): Promise<UserDevice | null> {
@@ -264,5 +288,23 @@ export default class UserRepository extends AbstractRepository {
         }
 
         return this.findDeviceById(insertedId);
+    }
+
+    public async deleteDeviceByUserIdAndClientDeviceId(
+        userId: TUserDevice['userId'],
+        clientDeviceId: TUserDevice['clientDeviceId']
+    ): Promise<boolean> {
+        console.log(userId, clientDeviceId);
+        const isDeleted = await this.db.delete(
+            'user_devices',
+            'user_id = $1 AND client_device_id = $2',
+            [userId, clientDeviceId]
+        );
+
+        if (isDeleted === null) {
+            return false;
+        }
+
+        return isDeleted > 0;
     }
 }
