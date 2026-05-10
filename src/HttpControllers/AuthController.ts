@@ -98,7 +98,7 @@ export default class AuthHttpController extends AbstractHttpController {
         req: Request,
         res: Response
     ): Promise<void> => {
-        const { username, password, clientDeviceId, publicKey } = req.body;
+        const { username, password, device, publicKey } = req.body;
 
         if (!username || typeof username !== 'string') {
             throw new RouteError(
@@ -114,10 +114,10 @@ export default class AuthHttpController extends AbstractHttpController {
             );
         }
 
-        if (!clientDeviceId || typeof clientDeviceId !== 'string') {
+        if (!device || typeof device !== 'object') {
             throw new RouteError(
                 400,
-                'The field "clientDeviceId" is required and must be a string'
+                'The field "device" is required and must be an object'
             );
         }
 
@@ -162,13 +162,14 @@ export default class AuthHttpController extends AbstractHttpController {
         if (
             !(await this.userRepository.findDeviceByUserIdAndClientDeviceId(
                 user.getId(),
-                clientDeviceId
+                device.id
             ))
         ) {
             if (
                 !(await this.userRepository.insertDevice({
                     userId: user.getId(),
-                    clientDeviceId: clientDeviceId,
+                    clientDeviceId: device.id,
+                    clientDeviceName: device.name,
                     publicKey: publicKey,
                 }))
             ) {
@@ -260,6 +261,7 @@ export default class AuthHttpController extends AbstractHttpController {
             message: 'Successfully retrieved user devices',
             data: devices.map((device) => ({
                 clientDeviceId: device.getClientDeviceId(),
+                clientDeviceName: device.getClientDeviceName(),
                 publicKey: device.getPublicKey(),
             })),
         });

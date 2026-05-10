@@ -4,6 +4,7 @@ export type TDBUserDevice = {
     updated_at: Date;
     user_id: string;
     client_device_id: string;
+    client_device_name: string;
     public_key: string;
 };
 
@@ -13,6 +14,7 @@ export type TUserDevice = {
     updatedAt: TDBUserDevice['updated_at'];
     userId: TDBUserDevice['user_id'];
     clientDeviceId: TDBUserDevice['client_device_id'];
+    clientDeviceName: TDBUserDevice['client_device_name'];
     publicKey: TDBUserDevice['public_key'];
 };
 
@@ -22,6 +24,7 @@ export default class UserDevice {
     private readonly updatedAt: TUserDevice['updatedAt'];
     private readonly userId: TUserDevice['userId'];
     private readonly clientDeviceId: TUserDevice['clientDeviceId'];
+    private readonly clientDeviceName: TUserDevice['clientDeviceName'];
     private readonly publicKey: TUserDevice['publicKey'];
 
     constructor(userDevice: TUserDevice) {
@@ -30,6 +33,7 @@ export default class UserDevice {
         this.updatedAt = userDevice.updatedAt;
         this.userId = userDevice.userId;
         this.clientDeviceId = userDevice.clientDeviceId;
+        this.clientDeviceName = userDevice.clientDeviceName;
         this.publicKey = userDevice.publicKey;
     }
 
@@ -51,6 +55,10 @@ export default class UserDevice {
 
     public getClientDeviceId(): TUserDevice['clientDeviceId'] {
         return this.clientDeviceId;
+    }
+
+    public getClientDeviceName(): TUserDevice['clientDeviceName'] {
+        return this.clientDeviceName;
     }
 
     public getPublicKey(): TUserDevice['publicKey'] {

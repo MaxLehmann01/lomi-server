@@ -216,6 +216,7 @@ export default class UserRepository extends AbstractRepository {
             updatedAt: device.updated_at,
             userId: device.user_id,
             clientDeviceId: device.client_device_id,
+            clientDeviceName: device.client_device_name,
             publicKey: device.public_key,
         });
     }
@@ -242,6 +243,7 @@ export default class UserRepository extends AbstractRepository {
             updatedAt: device.updated_at,
             userId: device.user_id,
             clientDeviceId: device.client_device_id,
+            clientDeviceName: device.client_device_name,
             publicKey: device.public_key,
         });
     }
@@ -265,6 +267,7 @@ export default class UserRepository extends AbstractRepository {
                     updatedAt: device.updated_at,
                     userId: device.user_id,
                     clientDeviceId: device.client_device_id,
+                    clientDeviceName: device.client_device_name,
                     publicKey: device.public_key,
                 })
         );
@@ -278,6 +281,7 @@ export default class UserRepository extends AbstractRepository {
             {
                 user_id: device.userId,
                 client_device_id: device.clientDeviceId,
+                client_device_name: device.clientDeviceName,
                 public_key: device.publicKey,
             },
             'id'
@@ -294,7 +298,6 @@ export default class UserRepository extends AbstractRepository {
         userId: TUserDevice['userId'],
         clientDeviceId: TUserDevice['clientDeviceId']
     ): Promise<boolean> {
-        console.log(userId, clientDeviceId);
         const isDeleted = await this.db.delete(
             'user_devices',
             'user_id = $1 AND client_device_id = $2',
