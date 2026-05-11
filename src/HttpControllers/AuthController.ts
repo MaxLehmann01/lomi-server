@@ -90,7 +90,6 @@ export default class AuthHttpController extends AbstractHttpController {
             data: {
                 id: req.user.getId(),
                 name: req.user.getName(),
-                encryptedAccountKey: req.user.getEncryptedAccountKey(),
             },
         });
     };
@@ -180,7 +179,10 @@ export default class AuthHttpController extends AbstractHttpController {
 
         res.status(200).json({
             message: 'Successfully signed in',
-            data: authTokens,
+            data: {
+                ...authTokens,
+                encryptedAccountKey: user.getEncryptedAccountKey(),
+            },
         });
     };
 
