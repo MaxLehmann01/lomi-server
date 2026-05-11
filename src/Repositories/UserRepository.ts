@@ -31,6 +31,7 @@ export default class UserRepository extends AbstractRepository {
             name: user.name,
             passwordHash: user.password_hash,
             passwordSalt: user.password_salt,
+            encryptedAccountKey: user.encrypted_account_key,
         });
     }
 
@@ -54,18 +55,27 @@ export default class UserRepository extends AbstractRepository {
             name: user.name,
             passwordHash: user.password_hash,
             passwordSalt: user.password_salt,
+            encryptedAccountKey: user.encrypted_account_key,
         });
     }
 
     public async insert(
         user: Omit<
             TUser,
-            'id' | 'createdAt' | 'updatedAt' | 'passwordSalt' | 'passwordHash'
+            | 'id'
+            | 'createdAt'
+            | 'updatedAt'
+            | 'passwordSalt'
+            | 'passwordHash'
+            | 'encryptedAccountKey'
         >,
         password: string
     ): Promise<User | null> {
         const salt = Security.generateSalt();
         const passwordHash = Security.hashString(password, salt);
+
+        const encryptedAccountKey =
+            Security.createEncryptedAccountKey(password);
 
         const insertedId = await this.db.insert<TUser['id']>(
             'users',
@@ -73,6 +83,8 @@ export default class UserRepository extends AbstractRepository {
                 name: user.name,
                 password_salt: salt,
                 password_hash: passwordHash,
+                encrypted_account_key:
+                    Security.stringifyEncryptedAccountKey(encryptedAccountKey),
             },
             'id'
         );

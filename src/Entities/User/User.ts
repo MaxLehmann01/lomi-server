@@ -1,3 +1,5 @@
+import { TEncryptedAccountKey } from 'src/Services/Security/Security';
+
 export type TDBUser = {
     id: string;
     created_at: Date;
@@ -5,6 +7,7 @@ export type TDBUser = {
     name: string;
     password_hash: string;
     password_salt: string;
+    encrypted_account_key: TEncryptedAccountKey;
 };
 
 export type TUser = {
@@ -14,6 +17,7 @@ export type TUser = {
     name: TDBUser['name'];
     passwordHash: TDBUser['password_hash'];
     passwordSalt: TDBUser['password_salt'];
+    encryptedAccountKey: TDBUser['encrypted_account_key'];
 };
 
 export type TJWTUserPayload = {
@@ -30,6 +34,7 @@ export default class User {
     private readonly name: TUser['name'];
     private readonly passwordHash: TUser['passwordHash'];
     private readonly passwordSalt: TUser['passwordSalt'];
+    private readonly encryptedAccountKey: TUser['encryptedAccountKey'];
 
     constructor(user: TUser) {
         this.id = user.id;
@@ -38,6 +43,7 @@ export default class User {
         this.name = user.name;
         this.passwordHash = user.passwordHash;
         this.passwordSalt = user.passwordSalt;
+        this.encryptedAccountKey = user.encryptedAccountKey;
     }
 
     public getId(): TUser['id'] {
@@ -62,5 +68,9 @@ export default class User {
 
     public getPasswordSalt(): TUser['passwordSalt'] {
         return this.passwordSalt;
+    }
+
+    public getEncryptedAccountKey(): TUser['encryptedAccountKey'] {
+        return this.encryptedAccountKey;
     }
 }
