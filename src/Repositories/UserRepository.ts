@@ -1,14 +1,18 @@
-import AbstractRepository from 'src/Repositories/AbstractRepository';
 import User, { TDBUser, TUser } from 'src/Entities/User/User';
-import UserRefreshToken, {
-    TDBUserRefreshToken,
-    TUserRefreshToken,
-} from 'src/Entities/User/UserRefreshToken';
-import Security from 'src/Services/Security/Security';
 import UserDevice, {
     TDBUserDevice,
     TUserDevice,
 } from 'src/Entities/User/UserDevice';
+import UserRefreshToken, {
+    TDBUserRefreshToken,
+    TUserRefreshToken,
+} from 'src/Entities/User/UserRefreshToken';
+import UserRequest, {
+    TDBUserRequest,
+    TUserRequest,
+} from 'src/Entities/User/UserRequest';
+import AbstractRepository from 'src/Repositories/AbstractRepository';
+import Security from 'src/Services/Security/Security';
 
 export default class UserRepository extends AbstractRepository {
     public async findById(userId: TUser['id']): Promise<User | null> {
@@ -315,6 +319,86 @@ export default class UserRepository extends AbstractRepository {
             'user_id = $1 AND client_device_id = $2',
             [userId, clientDeviceId]
         );
+
+        if (isDeleted === null) {
+            return false;
+        }
+
+        return isDeleted > 0;
+    }
+
+    public async findRequestById(
+        requestId: TUserRequest['id']
+    ): Promise<UserRequest | null> {
+        const userRequest = await this.db.selectOne<TDBUserRequest>(
+            'user_requests',
+            '*',
+            'id = $1',
+            undefined,
+            [requestId]
+        );
+
+        if (!userRequest) {
+            return null;
+        }
+
+        return new UserRequest({
+            id: userRequest.id,
+            createdAt: userRequest.created_at,
+            updatedAt: userRequest.updated_at,
+            userId: userRequest.user_id,
+            encryptedConfig: userRequest.encrypted_config,
+        });
+    }
+
+    public async findAllRequestsByUserId(
+        userId: TUserRequest['userId']
+    ): Promise<UserRequest[]> {
+        const userRequests = await this.db.select<TDBUserRequest>(
+            'user_requests',
+            '*',
+            'user_id = $1',
+            undefined,
+            [userId]
+        );
+
+        return userRequests.map(
+            (userRequest) =>
+                new UserRequest({
+                    id: userRequest.id,
+                    createdAt: userRequest.created_at,
+                    updatedAt: userRequest.updated_at,
+                    userId: userRequest.user_id,
+                    encryptedConfig: userRequest.encrypted_config,
+                })
+        );
+    }
+
+    public async insertRequest(
+        userRequest: Omit<TUserRequest, 'id' | 'createdAt' | 'updatedAt'>
+    ): Promise<UserRequest | null> {
+        const insertedId = await this.db.insert<TUserRequest['id']>(
+            'user_requests',
+            {
+                user_id: userRequest.userId,
+                encrypted_config: JSON.stringify(userRequest.encryptedConfig),
+            },
+            'id'
+        );
+
+        if (!insertedId) {
+            return null;
+        }
+
+        return this.findRequestById(insertedId);
+    }
+
+    public async deleteRequest(
+        requestId: TUserRequest['id']
+    ): Promise<boolean> {
+        const isDeleted = await this.db.delete('user_requests', 'id = $1', [
+            requestId,
+        ]);
 
         if (isDeleted === null) {
             return false;

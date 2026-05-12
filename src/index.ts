@@ -1,11 +1,12 @@
+import AuthHttpController from 'src/HttpControllers/AuthController';
+import IndexHttpController from 'src/HttpControllers/IndexController';
+import RequestHttpController from 'src/HttpControllers/RequestController';
+import UserRepository from 'src/Repositories/UserRepository';
 import Config from 'src/Services/Config/Config';
 import Definition from 'src/Services/Config/Definition';
-import Logger from 'src/Services/Logger/Logger';
-import HttpServer from 'src/Services/HttpServer/HttpServer';
-import IndexHttpController from 'src/HttpControllers/IndexController';
 import Database from 'src/Services/Database/Database';
-import AuthHttpController from 'src/HttpControllers/AuthController';
-import UserRepository from 'src/Repositories/UserRepository';
+import HttpServer from 'src/Services/HttpServer/HttpServer';
+import Logger from 'src/Services/Logger/Logger';
 
 Config.load(Definition);
 
@@ -37,6 +38,9 @@ database
 
 httpServer.registerController(new IndexHttpController(logger));
 httpServer.registerController(new AuthHttpController(logger, userRepository));
+httpServer.registerController(
+    new RequestHttpController(logger, userRepository)
+);
 httpServer
     .start()
     .then(() => {
